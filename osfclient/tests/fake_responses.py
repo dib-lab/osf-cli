@@ -1,5 +1,5 @@
 import json
-
+from osfclient.models import osf_to_jsonld
 
 # Use this to initialize a `Project` instance
 node_json = """
@@ -192,19 +192,43 @@ node_json = """
 }
 """
 
+
+def _make_jsonld():
+    node = _build_node("nodes")
+
+    data = {
+        osf_to_jsonld[key]: value
+        for key, value in node["data"]["attributes"].items()
+        if key in osf_to_jsonld.keys()
+    }
+
+    data.update(
+        {
+            osf_to_jsonld["id"]: node["data"]["id"],
+            osf_to_jsonld["self"]: node["data"]["links"]["self"],
+            osf_to_jsonld["storages_url"]: node["data"]["relationships"]["files"][
+                "links"
+            ]["related"]["href"],
+        }
+    )
+
+    return data
+
+
 def _build_node(type_):
     node = json.loads(node_json)
-    node['data']['type'] = type_
+    node["data"]["type"] = type_
     return node
 
-project_node = _build_node('nodes')
-registration_node = _build_node('registrations')
-fake_node = _build_node('fakes')
 
+project_node = _build_node("nodes")
+registration_node = _build_node("registrations")
+fake_node = _build_node("fakes")
+jsonld_attributes = _make_jsonld()
 
 # Use this to fake a response when asking for a project's files/storages
 # e.g. project.storages or project.storage()
-def storage_node(project_id, storages=['osfstorage']):
+def storage_node(project_id, storages=["osfstorage"]):
     storage = """
     {
         "relationships": {
@@ -234,8 +258,9 @@ def storage_node(project_id, storages=['osfstorage']):
     }"""
     used_storages = []
     for store in storages:
-        used_storages.append(json.loads(storage % {'project_id': project_id,
-                                                   'name': store}))
+        used_storages.append(
+            json.loads(storage % {"project_id": project_id, "name": store})
+        )
 
     files = """{
     "data": %(storages)s,
@@ -250,11 +275,13 @@ def storage_node(project_id, storages=['osfstorage']):
         }
     }
     }"""
-    return json.loads(files % {'storages': json.dumps(used_storages),
-                               'n_storages': len(used_storages)})
+    return json.loads(
+        files
+        % {"storages": json.dumps(used_storages), "n_storages": len(used_storages)}
+    )
 
 
-def _folder(osf_id, name, storage='osfstorage'):
+def _folder(osf_id, name, storage="osfstorage"):
     template = """{
         "relationships": {
             "files": {
@@ -308,12 +335,10 @@ def _folder(osf_id, name, storage='osfstorage'):
         "type": "files",
         "id": "%(osf_id)s"
     }"""
-    return json.loads(template % dict(osf_id=osf_id, name=name,
-                                      storage=storage))
+    return json.loads(template % dict(osf_id=osf_id, name=name, storage=storage))
 
 
-def files_node(project_id, storage, file_names=['hello.txt'],
-               folder_names=None):
+def files_node(project_id, storage, file_names=["hello.txt"], folder_names=None):
     a_file = """{
     "relationships": {
         "node": {
@@ -369,13 +394,15 @@ def files_node(project_id, storage, file_names=['hello.txt'],
 }"""
     files = []
     for fname in file_names:
-        files.append(json.loads(a_file % dict(storage=storage,
-                                              fname=fname,
-                                              project_id=project_id)))
+        files.append(
+            json.loads(
+                a_file % dict(storage=storage, fname=fname, project_id=project_id)
+            )
+        )
 
     if folder_names is not None:
         for folder in folder_names:
-            files.append(_folder(folder + '123', folder, storage))
+            files.append(_folder(folder + "123", folder, storage))
 
     wrapper = """{
     "data": %(files)s,
@@ -390,5 +417,5 @@ def files_node(project_id, storage, file_names=['hello.txt'],
         }
     }
     }"""
-    return json.loads(wrapper % {'files': json.dumps(files),
-                                 'n_files': len(files)})
+    return json.loads(wrapper % {"files": json.dumps(files), "n_files": len(files)})
+

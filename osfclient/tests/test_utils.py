@@ -107,7 +107,7 @@ def test_empty_file():
     with patch('osfclient.utils.six.PY2', False):
         empty = file_empty(fake_fp)
 
-    expected = [call.peek()]
+    expected = [call.read()]
     assert expected == fake_fp.mock_calls
     # mocks and calls on mocks always return True, so this should be False
     assert not empty

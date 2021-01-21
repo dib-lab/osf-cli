@@ -31,7 +31,7 @@ class OSFSession(requests.Session):
     auth = None
     __attrs__ = requests.Session.__attrs__ + ['base_url']
 
-    def __init__(self):
+    def __init__(self, address=None):
         """Handle HTTP session related work."""
         super(OSFSession, self).__init__()
         self.headers.update({
@@ -44,7 +44,7 @@ class OSFSession(requests.Session):
             # Custom User-Agent string
             'User-Agent': 'osfclient v' + __version__,
             })
-        self.base_url = 'https://api.osf.io/v2/'
+        self.base_url = address or 'https://api.osf.io/v2'
         self.last_request = None
 
     def basic_auth(self, username, password):

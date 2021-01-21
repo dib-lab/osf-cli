@@ -99,6 +99,47 @@ username and project ID create ``.osfcli.config``:
 after which you can simply run ``osf ls`` to list the contents of the
 project.
 
+JSON-LD Support
+===============
+
+You can find some json-ld support for project metadata. To create a project in OSF with JSON-LD, you can use the following command.
+
+::
+
+    from osfclient import OSF
+    osf = OSF()
+    osf.login(token="XYZ")
+    osf.create_project_jsonld(jsonld)
+
+The `jsonld` object have to have the following structure. 
+Title and category are mandatory, description and keywords should be given by the user, otherwise it is empty. 
+
+::
+
+    {
+        "https://schema.org/category":"project",
+        "https://schema.org/description":"this is a test for preprint citations",
+        "https://schema.org/dateModified":"2017-03-17T16:11:35.721000",
+        "https://schema.org/title":"Preprint Citations Test",
+        "https://schema.org/dateCreated":"2017-03-17T16:09:14.864000",
+        "https://schema.org/publicAccess":true,
+        "https://schema.org/keywords":[
+            "qatest"
+        ],
+        "https://schema.org/identifier":"f3szh",
+        "https://schema.org/url":"https://api.osf.io/v2/nodes/f3szh/",
+        "https://schema.org/downloadUrl":"https://api.osf.io/v2/nodes/f3szh/files/"
+    }
+
+All other keys are optional or cannot be set by the user, but will be printed out, when you call want to get the metadata.
+
+::
+
+    from osfclient import OSF
+    osf = OSF()
+    osf.login(token="XYZ")
+    osf.project("f3szh").metadata(jsonld=True)
+
 Contributing
 ============
 

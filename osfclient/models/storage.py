@@ -10,6 +10,7 @@ from ..utils import checksum
 from ..utils import file_empty
 from ..utils import get_local_file_size
 from ..utils import norm_remote_path
+from io import BytesIO
 
 
 if six.PY2:
@@ -62,7 +63,7 @@ class Storage(OSFCore, ContainerMixin):
         To force overwrite of an existing file, set `force=True`.
         To overwrite an existing file only if the files differ, set `update=True`
         """
-        if 'b' not in fp.mode:
+        if 'b' not in getattr(fp, "mode", "") and not isinstance(fp, BytesIO):
             raise ValueError("File has to be opened in binary mode.")
 
         # all paths are assumed to be absolute

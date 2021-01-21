@@ -18,7 +18,7 @@ from osfclient.tests.mocks import FakeResponse, MockFile
 @patch.object(OSFCore, '_get')
 def test_iterate_files(OSFCore_get):
     store = Storage({})
-    store._files_url = 'https://api.osf.io/v2//nodes/f3szh/files/osfstorage'
+    store._files_url = 'https://api.osf.io/v2/nodes/f3szh/files/osfstorage'
 
     json = fake_responses.files_node('f3szh', 'osfstorage',
                                      ['hello.txt', 'bye.txt'])
@@ -33,13 +33,13 @@ def test_iterate_files(OSFCore_get):
         assert file_.session == store.session
 
     OSFCore_get.assert_called_once_with(
-        'https://api.osf.io/v2//nodes/f3szh/files/osfstorage')
+        'https://api.osf.io/v2/nodes/f3szh/files/osfstorage')
 
 
 @patch.object(OSFCore, '_get')
 def test_iterate_folders(OSFCore_get):
     store = Storage({})
-    store._files_url = 'https://api.osf.io/v2//nodes/f3szh/files/osfstorage'
+    store._files_url = 'https://api.osf.io/v2/nodes/f3szh/files/osfstorage'
 
     json = fake_responses.files_node('f3szh', 'osfstorage',
                                      folder_names=['foo', 'bar'])
@@ -55,13 +55,13 @@ def test_iterate_folders(OSFCore_get):
         assert folder.name in ('foo', 'bar')
 
     OSFCore_get.assert_called_once_with(
-        'https://api.osf.io/v2//nodes/f3szh/files/osfstorage')
+        'https://api.osf.io/v2/nodes/f3szh/files/osfstorage')
 
 
 def test_iterate_files_and_folders():
     # check we attempt to recurse into the folders
     store = Storage({})
-    store._files_url = 'https://api.osf.io/v2//nodes/f3szh/files/osfstorage'
+    store._files_url = 'https://api.osf.io/v2/nodes/f3szh/files/osfstorage'
 
     json = fake_responses.files_node('f3szh', 'osfstorage',
                                      file_names=['hello.txt', 'bye.txt'],
@@ -133,7 +133,7 @@ def test_force_existing_file():
         elif url.endswith("osfstorage/foo.txt"):
             return FakeResponse(200, None)
 
-    store._files_url = 'https://api.osf.io/v2//nodes/f3szh/files/osfstorage'
+    store._files_url = 'https://api.osf.io/v2/nodes/f3szh/files/osfstorage'
     json = fake_responses.files_node('f3szh', 'osfstorage',
                                      file_names=['hello.txt', 'foo.txt'])
     top_level_response = FakeResponse(200, json)
@@ -151,7 +151,7 @@ def test_force_existing_file():
             store.create_file('foo.txt', fake_fp, force=True)
 
     assert fake_fp.call_count == 0
-    assert call.peek(1) in fake_fp.mock_calls
+    assert call.read(1) in fake_fp.mock_calls
     # should have made two PUT requests, first attempt at uploading then
     # to update the file
     assert fake_put.call_count == 2
@@ -173,7 +173,7 @@ def test_update_existing_file_files_differ():
         elif url.endswith("osfstorage/foo.txt"):
             return FakeResponse(200, None)
 
-    store._files_url = 'https://api.osf.io/v2//nodes/f3szh/files/osfstorage'
+    store._files_url = 'https://api.osf.io/v2/nodes/f3szh/files/osfstorage'
     json = fake_responses.files_node('f3szh', 'osfstorage',
                                      file_names=['hello.txt', 'foo.txt'])
     for i_file in range(2):
@@ -198,7 +198,7 @@ def test_update_existing_file_files_differ():
                 store.create_file('foo.txt', fake_fp, update=True)
 
     assert fake_fp.call_count == 0
-    assert call.peek(1) in fake_fp.mock_calls
+    assert call.read(1) in fake_fp.mock_calls
     # should have made two PUT requests, first attempt at uploading then
     # to update the file
     assert fake_put.call_count == 2
@@ -220,7 +220,7 @@ def test_update_existing_file_files_match():
         elif url.endswith("osfstorage/foo.txt"):
             return FakeResponse(200, None)
 
-    store._files_url = 'https://api.osf.io/v2//nodes/f3szh/files/osfstorage'
+    store._files_url = 'https://api.osf.io/v2/nodes/f3szh/files/osfstorage'
     json = fake_responses.files_node('f3szh', 'osfstorage',
                                      file_names=['hello.txt', 'foo.txt'])
     for i_file in range(2):
@@ -267,7 +267,7 @@ def test_update_existing_file_files_match_force_overrides_update():
         elif url.endswith("osfstorage/foo.txt"):
             return FakeResponse(200, None)
 
-    store._files_url = 'https://api.osf.io/v2//nodes/f3szh/files/osfstorage'
+    store._files_url = 'https://api.osf.io/v2/nodes/f3szh/files/osfstorage'
     json = fake_responses.files_node('f3szh', 'osfstorage',
                                      file_names=['hello.txt', 'foo.txt'])
     for i_file in range(2):
@@ -292,7 +292,7 @@ def test_update_existing_file_files_match_force_overrides_update():
                 store.create_file('foo.txt', fake_fp, force=True, update=True)
 
     assert fake_fp.call_count == 0
-    assert call.peek(1) in fake_fp.mock_calls
+    assert call.read(1) in fake_fp.mock_calls
     # should have made two PUT requests, first attempt at uploading then
     # to update the file, even though they match, since force=True overrides
     # update=True
@@ -315,7 +315,7 @@ def test_update_existing_file_fails():
         elif url.endswith("osfstorage/foo.txt"):
             return FakeResponse(200, None)
 
-    store._files_url = 'https://api.osf.io/v2//nodes/f3szh/files/osfstorage'
+    store._files_url = 'https://api.osf.io/v2/nodes/f3szh/files/osfstorage'
     json = fake_responses.files_node('f3szh', 'osfstorage',
                                      # this is the key, none of the files are
                                      # named after the file we are trying to
@@ -403,10 +403,7 @@ def test_create_new_zero_length_file():
 
     fake_fp = MagicMock()
     fake_fp.mode = 'rb'
-    if six.PY3:
-        fake_fp.peek = lambda: ''
-    if six.PY2:
-        fake_fp.read = lambda: ''
+    fake_fp.read = lambda: ''
 
     store.create_file('foo.txt', fake_fp)
 
@@ -493,7 +490,7 @@ def test_update_existing_file_overrides_connection_error():
     def simple_checksum(file_path):
         return '0' * 32
     
-    store._files_url = 'https://api.osf.io/v2//nodes/f3szh/files/osfstorage'
+    store._files_url = 'https://api.osf.io/v2/nodes/f3szh/files/osfstorage'
     json = fake_responses.files_node('f3szh', 'osfstorage',
                                      file_names=['hello.txt', 'foo.txt'])
     top_level_response = FakeResponse(200, json)
@@ -513,7 +510,7 @@ def test_update_existing_file_overrides_connection_error():
                 store.create_file('foo.txt', fake_fp, update=True)
 
     assert fake_fp.call_count == 0
-    assert call.peek(1) in fake_fp.mock_calls
+    assert call.read(1) in fake_fp.mock_calls
     # should have made two PUT requests, first attempt at uploading then
     # to update the file
     assert fake_put.call_count == 2
